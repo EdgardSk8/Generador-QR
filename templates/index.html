@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de QR</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f4f4f9;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        input {
+            padding: 12px;
+            width: 80%;
+            max-width: 400px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            width: 80%;
+            max-width: 400px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+
+        /* Container for form and QR code */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Media queries for mobile responsiveness */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+            }
+            input {
+                width: 90%;
+                font-size: 14px;
+            }
+            button {
+                width: 90%;
+                font-size: 14px;
+            }
+            img {
+                max-width: 80%;
+                max-height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Códigos QR</h1>
+        <form action="/" method="post">
+            <input type="text" name="url" placeholder="Ingresa la URL" required>
+            <br>
+            <button type="submit">Generar QR</button>
+        </form>
+
+        {% if qr_image %}
+            <h3>QR generado:</h3>
+            <img id="qrImage" src="data:image/png;base64,{{ qr_image }}" alt="Código QR">
+            
+            <!-- Botón de descarga -->
+            <br> <br>
+            <button id="downloadButton" onclick="downloadImage()">Descargar Imagen</button>
+        {% endif %}
+    </div>
+
+    <script>
+        function downloadImage() {
+            var image = document.getElementById('qrImage');
+            var link = document.createElement('a');
+            link.href = image.src;
+            link.download = 'CodigoQR.png'; // Nombre del archivo
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block heading %}Panel{% endblock %}
+{% block subheading %}Resumen de tu actividad, códigos recientes y accesos rápidos.{% endblock %}
+
+{% block content %}
+<div class="stats" id="statCards">
+  <div class="stat"><div class="stat-top">Cargando…</div><div class="stat-value">—</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <h2>Escaneos · últimos 14 días</h2>
+    </div>
+    <div class="card-body">
+      <div class="chart-wrap" id="activityChart">
+        <p class="muted small">Cargando actividad…</p>
+      </div>
+      <div class="chart-legend" style="margin-top:10px">
+        <span><i class="legend-dot" style="background:var(--primary)"></i>Escaneos por día</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Acciones rápidas</h2></div>
+    <div class="card-body stack-sm">
+      <a class="btn btn-primary btn-block" href="/crear">
+        <svg class="icon icon-sm"><use href="#i-plus"/></svg> Crear un código QR
+      </a>
+      <a class="btn btn-block" href="/crear?tipo=links">
+        <svg class="icon icon-sm"><use href="#i-link"/></svg> Página de múltiples enlaces
+      </a>
+      <a class="btn btn-block" href="/crear?tipo=menu">
+        <svg class="icon icon-sm"><use href="#i-menu"/></svg> Menú digital para restaurante
+      </a>
+      <a class="btn btn-block" href="/lote">
+        <svg class="icon icon-sm"><use href="#i-layers"/></svg> Generar por lotes desde CSV
+      </a>
+      <a class="btn btn-block" href="/plantillas">
+        <svg class="icon icon-sm"><use href="#i-palette"/></svg> Explorar plantillas de diseño
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Códigos recientes</h2>
+    <span class="spacer"></span>
+    <a class="btn btn-sm" href="/mis-codigos">Ver todos</a>
+  </div>
+  <div class="card-body">
+    <div class="code-grid" id="recentCodes">
+      <p class="muted small">Cargando…</p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Últimos escaneos</h2>
+    <span class="badge" id="scansTotal">—</span>
+  </div>
+  <div class="card-body" id="recentScans">
+    <p class="muted small">Cargando…</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block vendors %}
+<script src="{{ url_for('static', filename='vendor/qr-code-styling.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/panel.js') }}"></script>
+{% endblock %}

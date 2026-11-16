@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block heading %}Estadísticas{% endblock %}
+{% block subheading %}Escaneos por período, dispositivo, sistema operativo, navegador y país.{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <div class="toolbar">
+      <select class="select" id="codeSelect" style="max-width:320px" aria-label="Elegir código">
+        <option value="">Todos los códigos</option>
+      </select>
+      <div class="segmented" id="rangeSwitch">
+        <button type="button" data-days="7">7 días</button>
+        <button type="button" data-days="30" class="is-active">30 días</button>
+        <button type="button" data-days="90">90 días</button>
+      </div>
+      <div class="segmented" id="groupSwitch" aria-label="Agrupar por">
+        <button type="button" data-group="day" class="is-active">Día</button>
+        <button type="button" data-group="week">Semana</button>
+        <button type="button" data-group="month">Mes</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="badge badge-mono" id="statsRange">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats" id="statsCards"></div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Escaneos por día</h2></div>
+    <div class="card-body">
+      <div class="chart-wrap" id="statsChart"><p class="muted small">Cargando…</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Dispositivos</h2></div>
+    <div class="card-body"><div class="bars" id="deviceBars"><p class="muted small">—</p></div></div>
+  </div>
+</div>
+
+<div class="grid-3">
+  <div class="card">
+    <div class="card-head"><h2>Sistema operativo</h2></div>
+    <div class="card-body"><div class="bars" id="osBars"><p class="muted small">—</p></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Navegador</h2></div>
+    <div class="card-body"><div class="bars" id="browserBars"><p class="muted small">—</p></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>País</h2></div>
+    <div class="card-body"><div class="bars" id="countryBars"><p class="muted small">—</p></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Códigos con actividad</h2>
+    <span class="spacer"></span>
+    <a class="btn btn-sm" href="/mis-codigos">Administrar códigos</a>
+  </div>
+  <div class="card-body" id="codeStatsTable">
+    <p class="muted small">Cargando…</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/estadisticas.js') }}"></script>
+{% endblock %}

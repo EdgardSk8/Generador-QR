@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block heading %}Mis códigos{% endblock %}
+{% block subheading %}Busca, filtra, edita, duplica y descarga todos tus códigos QR.{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body stack-sm">
+    <div class="toolbar">
+      <div class="search">
+        <svg class="icon"><use href="#i-search"/></svg>
+        <input class="input" id="searchInput" type="search" placeholder="Buscar por nombre o contenido…" aria-label="Buscar códigos">
+      </div>
+      <select class="select" id="typeFilter" style="max-width:190px" aria-label="Filtrar por tipo">
+        <option value="">Todos los tipos</option>
+      </select>
+      <select class="select" id="modeFilter" style="max-width:160px" aria-label="Filtrar por modo">
+        <option value="">Estáticos y dinámicos</option>
+        <option value="dynamic">Solo dinámicos</option>
+        <option value="static">Solo estáticos</option>
+      </select>
+      <select class="select" id="folderFilter" style="max-width:180px" aria-label="Filtrar por carpeta">
+        <option value="">Todas las carpetas</option>
+      </select>
+      <button class="btn btn-sm" id="newFolderBtn" type="button">
+        <svg class="icon icon-sm"><use href="#i-folder"/></svg> Nueva carpeta
+      </button>
+      <span class="spacer"></span>
+      <span class="badge" id="resultCount">—</span>
+    </div>
+  </div>
+</div>
+
+<div id="codesHost">
+  <div class="code-grid" id="codesGrid"></div>
+  <div class="card hidden" id="codesEmpty">
+    <div class="empty">
+      <svg class="icon"><use href="#i-qr"/></svg>
+      <h3>Sin códigos todavía</h3>
+      <p>Crea tu primer código QR y aparecerá aquí, listo para editar o descargar.</p>
+      <a class="btn btn-primary" href="/crear">Crear código QR</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block vendors %}
+<script src="{{ url_for('static', filename='vendor/qr-code-styling.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/codigos.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block heading %}Plantillas{% endblock %}
+{% block subheading %}Aplica un diseño completo con un clic y personalízalo después.{% endblock %}
+
+{% block content %}
+<div class="row-between">
+  <div class="section-title">
+    <div>
+      <h2>Biblioteca de diseños</h2>
+      <p class="muted small">Plantillas predefinidas y tus diseños guardados en este navegador.</p>
+    </div>
+  </div>
+  <div class="segmented" id="presetFilter">
+    <button type="button" data-filter="all" class="is-active">Todas</button>
+    <button type="button" data-filter="favorites">Favoritas</button>
+    <button type="button" data-filter="custom">Personalizadas</button>
+  </div>
+</div>
+
+<div class="preset-grid" id="presetGrid">
+  <p class="muted small">Cargando plantillas…</p>
+</div>
+{% endblock %}
+
+{% block vendors %}
+<script src="{{ url_for('static', filename='vendor/qr-code-styling.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/plantillas.js') }}"></script>
+{% endblock %}

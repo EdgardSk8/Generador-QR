@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title or code.name }} · Página QR</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M9 9h5v5H9zM18 9h5v5h-5zM9 18h5v5H9zM18 18h2v2h-2zM21 21h2v2h-2z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+<svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 5.7 2 2 0 0 1 6.5 3.5Z"/></symbol>
+  <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.4L3.8 20.3l1.4-4.2A8.4 8.4 0 1 1 20.5 11.6Z"/><path d="M9 8.4c.3-.5.7-.5 1 0l.7 1.4c.2.4 0 .7-.3 1-.3.3-.3.6 0 1 .5.8 1.2 1.4 2 1.9.4.2.7.2 1-.1.3-.3.6-.5 1-.3l1.4.7c.4.3.4.6.1 1-.4.6-1.2 1-2 1-2.9-.2-5.4-2.7-5.6-5.6 0-.8.3-1.5.7-2Z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.8 6.5 8.2 6 8.2-6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.3-2.3a4 4 0 0 0-5.7-5.7L11.5 6.8"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0l-2.3 2.3a4 4 0 0 0 5.7 5.7l1.3-1.3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.4"/><circle cx="8.5" cy="10.5" r="2"/><path d="M5.5 16a3.2 3.2 0 0 1 6 0M13.5 9.5h4M13.5 13h4"/></symbol>
+</svg>
+
+<main class="landing-body">
+  <article class="landing-card">
+    {% if page.photo %}
+      <img class="landing-avatar" src="{{ page.photo }}" alt="{{ page.title }}" referrerpolicy="no-referrer">
+    {% endif %}
+
+    <header class="stack-sm">
+      <h1 class="landing-title">{{ page.title or code.name }}</h1>
+      {% if page.subtitle %}<p class="landing-sub">{{ page.subtitle }}</p>{% endif %}
+    </header>
+
+    {% if page.about %}
+      <p class="small muted">{{ page.about }}</p>
+    {% endif %}
+
+    {% if page.facts %}
+      <div class="landing-facts">
+        {% for fact in page.facts %}
+          <div class="landing-fact">
+            <svg class="icon icon-sm"><use href="#i-{{ fact.icon }}"/></svg>
+            <span>{{ fact.text }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if page.vcf %}
+      <a class="landing-btn" href="{{ page.vcf }}">
+        <svg class="icon icon-sm"><use href="#i-card"/></svg> Guardar contacto
+      </a>
+    {% endif %}
+
+    {% if page.buttons %}
+      <div class="landing-actions">
+        {% for button in page.buttons %}
+          <a class="landing-btn {{ 'alt' if not loop.first else '' }}"
+             href="{{ button.url }}" target="_blank" rel="noopener noreferrer">
+            <svg class="icon icon-sm"><use href="#i-{{ button.icon or 'external' }}"/></svg>
+            <span>{{ button.label or button.url }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if page.groups %}
+      <div class="landing-menu">
+        {% for group in page.groups %}
+          <section class="menu-group">
+            <h3>{{ group.name }}</h3>
+            {% for item in group.entries %}
+              <div class="menu-item">
+                <div>
+                  <div>{{ item.name }}</div>
+                  {% if item.description %}<div class="menu-item-desc">{{ item.description }}</div>{% endif %}
+                </div>
+                {% if item.price %}<div class="menu-price">{{ item.price }}</div>{% endif %}
+              </div>
+            {% endfor %}
+          </section>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if page.images %}
+      <div class="landing-gallery">
+        {% for image in page.images %}
+          <a href="{{ image.url }}" target="_blank" rel="noopener noreferrer">
+            <img src="{{ image.url }}" alt="{{ image.label or 'Imagen' }}" loading="lazy" referrerpolicy="no-referrer">
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <footer class="landing-foot">
+      {{ page.type_label }} · creado con la Plataforma QR de
+      <a href="mailto:tellezsoftware@gmail.com">TellezSoftware</a>
+    </footer>
+  </article>
+</main>
+</body>
+</html>

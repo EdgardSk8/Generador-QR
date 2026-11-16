@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block heading %}{{ page_title }}{% endblock %}
+{% block subheading %}
+  {% if edit_code %}
+    Edita el contenido, el diseño y el destino de tu código QR.
+  {% else %}
+    Elige el tipo de contenido, personaliza el diseño y descarga en un clic.
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card export-bar" id="exportBar">
+  <div class="export-row">
+    <div class="export-field">
+      <label class="field-label" for="formatSelect">Formato</label>
+      <select class="select" id="formatSelect" aria-label="Formato de descarga">
+        <option value="png">PNG</option>
+        <option value="svg">SVG</option>
+        <option value="pdf">PDF (A4)</option>
+        <option value="jpg">JPG</option>
+        <option value="webp">WebP</option>
+      </select>
+    </div>
+    <div class="export-field">
+      <label class="field-label" for="sizeSelect">Resolución</label>
+      <select class="select" id="sizeSelect" aria-label="Resolución">
+        <option value="256">256 px</option>
+        <option value="512">512 px</option>
+        <option value="1024" selected>1024 px</option>
+        <option value="2048">2048 px</option>
+        <option value="4096">4096 px</option>
+      </select>
+    </div>
+    <div class="export-field">
+      <label class="field-label" for="marginSelect">Margen</label>
+      <select class="select" id="marginSelect" aria-label="Margen alrededor del código">
+        <option value="0">0 · sin margen</option>
+        <option value="1">1 mód.</option>
+        <option value="2">2 mód.</option>
+        <option value="3">3 mód.</option>
+        <option value="4" selected>4 · estándar</option>
+        <option value="5">5 mód.</option>
+        <option value="6">6 mód.</option>
+        <option value="8">8 · amplio</option>
+        <option value="10">10 · extra</option>
+      </select>
+    </div>
+    <label class="checkbox export-transparent" title="Se sincroniza con el interruptor de Colores">
+      <input type="checkbox" id="transparentToggle">
+      <span>Transparente</span>
+    </label>
+    <div class="export-actions">
+      <button class="btn" id="downloadBtn" type="button">
+        <svg class="icon icon-sm"><use href="#i-download"/></svg> Descargar
+      </button>
+      <button class="btn btn-primary" id="saveBtn" type="button">
+        <svg class="icon icon-sm"><use href="#i-save"/></svg> Guardar
+      </button>
+      <button class="icon-btn" id="resetBtn" type="button" title="Restablecer diseño" aria-label="Restablecer diseño">
+        <svg class="icon icon-sm"><use href="#i-refresh"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="builder">
+  <section class="builder-panel">
+    <details class="card card-collapsible" id="contentCard">
+      <summary class="card-head">
+        <span class="card-title">1 · Contenido</span>
+        <span class="badge badge-soft" id="typeBadge">Cargando…</span>
+      </summary>
+      <div class="card-body">
+        <div class="type-picker" id="typePicker"></div>
+      </div>
+    </details>
+
+    <div class="card">
+      <div class="card-head"><h2 id="formTitle">Datos del código</h2></div>
+      <div class="card-body">
+        <form id="contentForm" class="stack-sm" autocomplete="off"></form>
+
+        <div class="divider"></div>
+
+        <div class="field">
+          <label class="field-label" for="codeName">Nombre del código</label>
+          <input class="input" id="codeName" maxlength="120" placeholder="Ej. Menú del restaurante">
+        </div>
+
+        <div class="field" id="dynamicField">
+          <div class="row" style="gap:8px">
+            <label class="checkbox">
+              <input type="checkbox" id="dynamicToggle">
+              <span>QR dinámico (URL corta)</span>
+            </label>
+            <span class="hint">
+              <button type="button" class="hint-btn" aria-label="Qué es un QR dinámico">?</button>
+              <span class="hint-bubble" id="dynamicHelp"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="builder-panel">
+    <div class="preview-panel">
+      <div class="card">
+        <div class="card-head">
+          <h2>Vista previa</h2>
+          <div class="segmented" id="previewSizes" role="group" aria-label="Tamaño de vista previa">
+            <button type="button" data-size="240">S</button>
+            <button type="button" data-size="320" class="is-active">M</button>
+            <button type="button" data-size="420">L</button>
+          </div>
+        </div>
+        <div class="card-body stack">
+          <div class="preview-stage">
+            <canvas class="preview-canvas hidden" id="previewCanvas"></canvas>
+            <div class="preview-empty" id="previewEmpty">
+              <svg class="icon icon-lg"><use href="#i-qr"/></svg>
+              <p>Completa el formulario para ver tu código QR.</p>
+            </div>
+          </div>
+          <div class="preview-meta">
+            <span class="badge" id="contentKind">—</span>
+            <div class="row" style="gap:8px">
+              <button class="btn btn-ghost btn-sm hidden" id="togglePayload" type="button">
+                <svg class="icon icon-sm"><use href="#i-eye"/></svg> <span>Ver contenido</span>
+              </button>
+              <a class="badge badge-soft hidden" id="contentLink" target="_blank" rel="noopener">
+                <svg class="icon icon-sm"><use href="#i-external"/></svg> Abrir destino
+              </a>
+            </div>
+          </div>
+          <div class="preview-payload hidden" id="previewPayload">—</div>
+          <div class="checks" id="checks"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="builder-panel design">
+    <div class="card">
+      <div class="card-head">
+        <h2>2 · Diseño</h2>
+        <a class="btn btn-sm" id="presetsLink" href="/plantillas">
+          <svg class="icon icon-sm"><use href="#i-palette"/></svg> Plantillas
+        </a>
+      </div>
+      <div class="card-body tight">
+        <div class="mode-switch" id="modeSwitch" role="radiogroup" aria-label="Modo del editor">
+          <label class="mode-option">
+            <input type="radio" name="qrMode" value="sencillo">
+            <span>Sencillo</span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="qrMode" value="completo">
+            <span>Completo</span>
+          </label>
+        </div>
+        <div id="designPanel" class="stack-sm"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script type="application/json" id="initial-data">{{ {
+  "code": edit_code,
+  "initial_type": initial_type or ""
+}|tojson }}</script>
+{% endblock %}
+
+{% block vendors %}
+<script src="{{ url_for('static', filename='vendor/qr-code-styling.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/jsqr.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/jspdf.umd.min.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/crear.js') }}"></script>
+{% endblock %}

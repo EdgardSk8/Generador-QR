@@ -1,0 +1,22 @@
+# Entornos y artefactos
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+build/
+dist/
+temp/
+*.spec.bak
+
+# Datos locales
+instance/
+*.db
+*.sqlite3
+
+# Secretos
+.env
+.env.*
+
+# Sistema
+.DS_Store
+Thumbs.db

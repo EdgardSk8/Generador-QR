@@ -1,0 +1,451 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "contenido",
+      "label": "Contenido y enlaces",
+      "icon": "link",
+      "description": "Enlaces, texto, contacto directo y redes Wi-Fi."
+    },
+    {
+      "id": "contacto",
+      "label": "Información de contacto",
+      "icon": "user",
+      "description": "Tarjetas de visita y datos de contacto listos para guardar."
+    },
+    {
+      "id": "multimedia",
+      "label": "Contenido multimedia",
+      "icon": "image",
+      "description": "Imágenes, documentos, vídeos y audio."
+    },
+    {
+      "id": "marketing",
+      "label": "Marketing y negocios",
+      "icon": "store",
+      "description": "Redes sociales, menús, cupones, eventos y ubicaciones."
+    }
+  ],
+  "types": [
+    {
+      "id": "url",
+      "category": "contenido",
+      "label": "URL de página web",
+      "icon": "link",
+      "description": "Abre un sitio web al escanear; también sirve para PDF, vídeo, audio, redes sociales, encuestas o reseñas.",
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        {
+          "name": "url",
+          "label": "Dirección web",
+          "type": "url",
+          "required": true,
+          "placeholder": "https://ejemplo.com",
+          "maxlength": 2000,
+          "help": "Si no escribes el protocolo se añadirá https:// automáticamente. Usa este tipo para enlazar documentos, vídeos, audio, perfiles sociales, encuestas o reseñas."
+        }
+      ]
+    },
+    {
+      "id": "texto",
+      "category": "contenido",
+      "label": "Texto personalizado",
+      "icon": "text",
+      "description": "Muestra un texto libre en el lector.",
+      "escape": "none",
+      "template": "{texto}",
+      "fields": [
+        {
+          "name": "texto",
+          "label": "Texto",
+          "type": "textarea",
+          "required": true,
+          "rows": 5,
+          "maxlength": 1200,
+          "placeholder": "Escribe aquí el texto que verá quien escanee el código"
+        }
+      ]
+    },
+    {
+      "id": "email",
+      "category": "contenido",
+      "label": "Correo electrónico",
+      "icon": "mail",
+      "description": "Abre el cliente de correo con el destinatario y el mensaje.",
+      "builder": "email",
+      "escape": "none",
+      "fields": [
+        { "name": "to", "label": "Destinatario", "type": "email", "required": true, "placeholder": "hola@ejemplo.com" },
+        { "name": "subject", "label": "Asunto", "type": "text", "placeholder": "Información" },
+        { "name": "body", "label": "Mensaje", "type": "textarea", "rows": 3, "placeholder": "Hola, me gustaría..." }
+      ]
+    },
+    {
+      "id": "telefono",
+      "category": "contenido",
+      "label": "Número telefónico",
+      "icon": "phone",
+      "description": "Inicia una llamada al número indicado.",
+      "escape": "none",
+      "template": "tel:{numero}",
+      "fields": [
+        {
+          "name": "numero",
+          "label": "Número de teléfono",
+          "type": "tel",
+          "required": true,
+          "placeholder": "+52 55 1234 5678",
+          "help": "Incluye el código de país para llamadas internacionales."
+        }
+      ]
+    },
+    {
+      "id": "sms",
+      "category": "contenido",
+      "label": "SMS",
+      "icon": "chat",
+      "description": "Prepara un mensaje de texto al número indicado.",
+      "escape": "none",
+      "template": "SMSTO:{numero}:{mensaje}",
+      "fields": [
+        { "name": "numero", "label": "Número de teléfono", "type": "tel", "required": true, "placeholder": "+52 55 1234 5678" },
+        { "name": "mensaje", "label": "Mensaje", "type": "textarea", "rows": 3, "maxlength": 300, "placeholder": "Hola, quiero información" }
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "category": "contenido",
+      "label": "WhatsApp",
+      "icon": "whatsapp",
+      "description": "Abre un chat de WhatsApp con mensaje precargado.",
+      "dynamic": true,
+      "builder": "whatsapp",
+      "escape": "none",
+      "fields": [
+        {
+          "name": "numero",
+          "label": "Número de WhatsApp",
+          "type": "tel",
+          "required": true,
+          "placeholder": "+52 55 1234 5678",
+          "help": "Solo dígitos con código de país. Los espacios y símbolos se eliminan."
+        },
+        { "name": "mensaje", "label": "Mensaje precargado", "type": "textarea", "rows": 3, "maxlength": 900, "placeholder": "Hola, vengo del código QR" }
+      ]
+    },
+    {
+      "id": "wifi",
+      "category": "contenido",
+      "label": "Wi-Fi",
+      "icon": "wifi",
+      "description": "Conecta el dispositivo a la red sin teclear la contraseña.",
+      "escape": "wifi",
+      "template": "WIFI:T:{security};S:{ssid};P:{password};H:{hidden};;",
+      "fields": [
+        { "name": "ssid", "label": "Nombre de la red (SSID)", "type": "text", "required": true, "maxlength": 64, "placeholder": "MiRed" },
+        { "name": "password", "label": "Contraseña", "type": "password", "maxlength": 64, "placeholder": "••••••••" },
+        {
+          "name": "security",
+          "label": "Seguridad",
+          "type": "select",
+          "default": "WPA",
+          "options": [
+            { "value": "WPA", "label": "WPA / WPA2 / WPA3" },
+            { "value": "WEP", "label": "WEP" },
+            { "value": "nopass", "label": "Red abierta (sin contraseña)" }
+          ]
+        },
+        { "name": "hidden", "label": "Red oculta", "type": "checkbox", "default": false }
+      ]
+    },
+    {
+      "id": "vcard",
+      "category": "contacto",
+      "label": "vCard (contacto completo)",
+      "icon": "user",
+      "description": "La agenda del teléfono ofrece guardar el contacto con todos los datos.",
+      "builder": "vcard",
+      "escape": "none",
+      "fields": [
+        { "name": "first_name", "label": "Nombre", "type": "text", "required": true, "maxlength": 60, "placeholder": "Ana" },
+        { "name": "last_name", "label": "Apellidos", "type": "text", "maxlength": 60, "placeholder": "García" },
+        { "name": "org", "label": "Empresa", "type": "text", "maxlength": 80, "placeholder": "Estudio Norte" },
+        { "name": "title", "label": "Puesto", "type": "text", "maxlength": 80, "placeholder": "Directora de arte" },
+        { "name": "phone", "label": "Teléfono", "type": "tel", "maxlength": 40, "placeholder": "+52 55 1234 5678" },
+        { "name": "email", "label": "Correo", "type": "email", "maxlength": 120, "placeholder": "ana@ejemplo.com" },
+        { "name": "website", "label": "Sitio web", "type": "url", "maxlength": 300, "placeholder": "https://ejemplo.com" },
+        { "name": "street", "label": "Calle y número", "type": "text", "maxlength": 120, "placeholder": "Av. Reforma 123" },
+        { "name": "city", "label": "Ciudad", "type": "text", "maxlength": 80, "placeholder": "Ciudad de México" },
+        { "name": "country", "label": "País", "type": "text", "maxlength": 80, "placeholder": "México" },
+        { "name": "note", "label": "Nota", "type": "textarea", "rows": 2, "maxlength": 400, "placeholder": "Información adicional" }
+      ]
+    },
+    {
+      "id": "contacto",
+      "category": "contacto",
+      "label": "Nombre, teléfono, correo y dirección",
+      "icon": "contact",
+      "description": "Contacto compacto en formato MECARD, compatible con la mayoría de lectores.",
+      "builder": "mecard",
+      "escape": "none",
+      "fields": [
+        { "name": "name", "label": "Nombre completo", "type": "text", "required": true, "maxlength": 80, "placeholder": "Ana García" },
+        { "name": "phone", "label": "Teléfono", "type": "tel", "maxlength": 40, "placeholder": "+52 55 1234 5678" },
+        { "name": "email", "label": "Correo", "type": "email", "maxlength": 120, "placeholder": "ana@ejemplo.com" },
+        { "name": "address", "label": "Dirección", "type": "text", "maxlength": 160, "placeholder": "Av. Reforma 123, CDMX" }
+      ]
+    },
+    {
+      "id": "tarjeta",
+      "category": "contacto",
+      "label": "Tarjeta de presentación digital",
+      "icon": "card",
+      "description": "Página alojada con tus datos, botones de contacto y descarga del contacto.",
+      "hosted": "tarjeta",
+      "fields": [
+        { "name": "full_name", "label": "Nombre completo", "type": "text", "required": true, "maxlength": 80, "placeholder": "Ana García" },
+        { "name": "title", "label": "Puesto", "type": "text", "maxlength": 80, "placeholder": "Directora de arte" },
+        { "name": "org", "label": "Empresa", "type": "text", "maxlength": 80, "placeholder": "Estudio Norte" },
+        { "name": "phone", "label": "Teléfono", "type": "tel", "maxlength": 40, "placeholder": "+52 55 1234 5678" },
+        { "name": "email", "label": "Correo", "type": "email", "maxlength": 120, "placeholder": "ana@ejemplo.com" },
+        { "name": "website", "label": "Sitio web", "type": "url", "maxlength": 300, "placeholder": "https://ejemplo.com" },
+        { "name": "address", "label": "Dirección", "type": "text", "maxlength": 160, "placeholder": "Av. Reforma 123" },
+        { "name": "photo", "label": "Foto (URL de imagen)", "type": "url", "maxlength": 500, "placeholder": "https://ejemplo.com/foto.jpg" },
+        { "name": "about", "label": "Sobre mí", "type": "textarea", "rows": 3, "maxlength": 500, "placeholder": "Breve descripción" },
+        { "name": "links", "label": "Enlaces", "type": "repeater", "item": { "label": "Texto", "url": "URL" }, "max": 8 }
+      ]
+    },
+    {
+      "id": "media_imagen",
+      "category": "multimedia",
+      "label": "Imagen o galería",
+      "icon": "image",
+      "description": "Galería alojada con una o varias imágenes.",
+      "hosted": "galeria",
+      "fields": [
+        { "name": "title", "label": "Título", "type": "text", "required": true, "maxlength": 80, "placeholder": "Nuestro catálogo" },
+        { "name": "subtitle", "label": "Subtítulo", "type": "text", "maxlength": 120, "placeholder": "Colección primavera" },
+        { "name": "images", "label": "Imágenes", "type": "repeater", "required": true, "item": { "label": "Pie de foto", "url": "URL de la imagen" }, "max": 12 }
+      ]
+    },
+    {
+      "id": "media_pdf",
+      "category": "multimedia",
+      "label": "PDF y documentos",
+      "icon": "file",
+      "description": "Abre un documento alojado en la web.",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace del documento", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://ejemplo.com/catalogo.pdf" },
+        { "name": "titulo", "label": "Nombre del documento", "type": "text", "maxlength": 80, "placeholder": "Catálogo 2026" }
+      ]
+    },
+    {
+      "id": "media_video",
+      "category": "multimedia",
+      "label": "Video",
+      "icon": "video",
+      "description": "Abre un video de YouTube, Vimeo o un archivo de video.",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace del video", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://youtube.com/watch?v=..." },
+        { "name": "titulo", "label": "Título", "type": "text", "maxlength": 80, "placeholder": "Demostración del producto" }
+      ]
+    },
+    {
+      "id": "media_audio",
+      "category": "multimedia",
+      "label": "Archivo MP3",
+      "icon": "music",
+      "description": "Reproduce un audio alojado en la web.",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace del audio", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://ejemplo.com/podcast.mp3" },
+        { "name": "titulo", "label": "Título", "type": "text", "maxlength": 80, "placeholder": "Episodio 1" }
+      ]
+    },
+    {
+      "id": "media_link",
+      "category": "multimedia",
+      "label": "Enlaces a contenido multimedia",
+      "icon": "layers",
+      "description": "Enlace con título y descripción a contenido multimedia.",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://ejemplo.com/contenido" },
+        { "name": "titulo", "label": "Título", "type": "text", "maxlength": 80, "placeholder": "Mira nuestro contenido" },
+        { "name": "descripcion", "label": "Descripción", "type": "textarea", "rows": 2, "maxlength": 300, "placeholder": "Breve descripción" }
+      ]
+    },
+    {
+      "id": "social",
+      "category": "marketing",
+      "label": "Redes sociales",
+      "icon": "share",
+      "description": "Lleva directo a tu perfil en la red social elegida.",
+      "hidden": true,
+      "dynamic": true,
+      "builder": "social",
+      "any_required": ["usuario", "url"],
+      "escape": "none",
+      "fields": [
+        {
+          "name": "network",
+          "label": "Red social",
+          "type": "select",
+          "default": "instagram",
+          "options": [
+            { "value": "instagram", "label": "Instagram" },
+            { "value": "facebook", "label": "Facebook" },
+            { "value": "tiktok", "label": "TikTok" },
+            { "value": "x", "label": "X (Twitter)" },
+            { "value": "linkedin", "label": "LinkedIn" },
+            { "value": "youtube", "label": "YouTube" },
+            { "value": "telegram", "label": "Telegram" }
+          ]
+        },
+        { "name": "usuario", "label": "Usuario (sin @)", "type": "text", "maxlength": 80, "placeholder": "mi_usuario" },
+        { "name": "url", "label": "O pega el enlace de tu perfil", "type": "url", "maxlength": 500, "placeholder": "https://instagram.com/mi_usuario" }
+      ]
+    },
+    {
+      "id": "links",
+      "category": "marketing",
+      "label": "Múltiples enlaces",
+      "icon": "link",
+      "description": "Página alojada con todos tus enlaces, al estilo de una bio-link.",
+      "hosted": "links",
+      "fields": [
+        { "name": "title", "label": "Título", "type": "text", "required": true, "maxlength": 60, "placeholder": "Ana García" },
+        { "name": "subtitle", "label": "Subtítulo", "type": "text", "maxlength": 120, "placeholder": "Diseñadora · CDMX" },
+        { "name": "avatar", "label": "Avatar (URL de imagen)", "type": "url", "maxlength": 500, "placeholder": "https://ejemplo.com/foto.jpg" },
+        { "name": "links", "label": "Enlaces", "type": "repeater", "required": true, "item": { "label": "Texto del botón", "url": "URL" }, "max": 20 }
+      ]
+    },
+    {
+      "id": "business",
+      "category": "marketing",
+      "label": "Página de negocio",
+      "icon": "store",
+      "description": "Mini sitio con tus datos, horario y botones de acción.",
+      "hosted": "negocio",
+      "fields": [
+        { "name": "name", "label": "Nombre del negocio", "type": "text", "required": true, "maxlength": 80, "placeholder": "Café Norte" },
+        { "name": "tagline", "label": "Eslogan", "type": "text", "maxlength": 120, "placeholder": "Café de especialidad" },
+        { "name": "about", "label": "Descripción", "type": "textarea", "rows": 3, "maxlength": 600, "placeholder": "Cuéntanos qué ofreces" },
+        { "name": "address", "label": "Dirección", "type": "text", "maxlength": 160, "placeholder": "Av. Reforma 123" },
+        { "name": "phone", "label": "Teléfono", "type": "tel", "maxlength": 40, "placeholder": "+52 55 1234 5678" },
+        { "name": "email", "label": "Correo", "type": "email", "maxlength": 120, "placeholder": "hola@cafenorte.mx" },
+        { "name": "website", "label": "Sitio web", "type": "url", "maxlength": 300, "placeholder": "https://cafenorte.mx" },
+        { "name": "hours", "label": "Horario", "type": "text", "maxlength": 160, "placeholder": "Lun a Vie · 8:00 - 20:00" },
+        { "name": "logo", "label": "Logotipo (URL de imagen)", "type": "url", "maxlength": 500, "placeholder": "https://ejemplo.com/logo.png" },
+        { "name": "links", "label": "Botones", "type": "repeater", "item": { "label": "Texto", "url": "URL" }, "max": 10 }
+      ]
+    },
+    {
+      "id": "cupon",
+      "category": "marketing",
+      "label": "Cupón de descuento",
+      "icon": "ticket",
+      "description": "Muestra el código del cupón y su vigencia.",
+      "escape": "none",
+      "dropEmptyLines": true,
+      "template": "CUPÓN: {codigo}\n{descripcion}\nVálido hasta: {vence}\n{url}",
+      "fields": [
+        { "name": "codigo", "label": "Código del cupón", "type": "text", "required": true, "maxlength": 40, "placeholder": "VERANO25" },
+        { "name": "descripcion", "label": "Descripción de la oferta", "type": "text", "maxlength": 120, "placeholder": "25% de descuento en toda la tienda" },
+        { "name": "vence", "label": "Válido hasta", "type": "date" },
+        { "name": "url", "label": "Enlace de canje (opcional)", "type": "url", "maxlength": 500, "placeholder": "https://tienda.com/canjear" }
+      ]
+    },
+    {
+      "id": "encuesta",
+      "category": "marketing",
+      "label": "Encuesta",
+      "icon": "clipboard",
+      "description": "Abre un formulario o encuesta alojada.",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace de la encuesta", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://forms.gle/..." },
+        { "name": "titulo", "label": "Título", "type": "text", "maxlength": 80, "placeholder": "Cuéntanos tu experiencia" }
+      ]
+    },
+    {
+      "id": "resena",
+      "category": "marketing",
+      "label": "Reseñas y opiniones",
+      "icon": "star",
+      "description": "Lleva a tu página de reseñas (Google, Trustpilot, etc.).",
+      "hidden": true,
+      "dynamic": true,
+      "escape": "none",
+      "template": "{url}",
+      "fields": [
+        { "name": "url", "label": "Enlace de reseñas", "type": "url", "required": true, "maxlength": 2000, "placeholder": "https://g.page/r/..." },
+        { "name": "negocio", "label": "Nombre del negocio", "type": "text", "maxlength": 80, "placeholder": "Café Norte" }
+      ]
+    },
+    {
+      "id": "menu",
+      "category": "marketing",
+      "label": "Menú digital",
+      "icon": "menu",
+      "description": "Carta alojada con secciones, platillos y precios.",
+      "hosted": "menu",
+      "fields": [
+        { "name": "title", "label": "Nombre del menú", "type": "text", "required": true, "maxlength": 80, "placeholder": "Menú Café Norte" },
+        { "name": "subtitle", "label": "Subtítulo", "type": "text", "maxlength": 120, "placeholder": "Cocina de temporada" },
+        { "name": "currency", "label": "Símbolo de moneda", "type": "text", "maxlength": 5, "default": "$", "placeholder": "$" },
+        { "name": "items", "label": "Platillos", "type": "repeater", "required": true, "item": { "seccion": "Sección", "nombre": "Platillo", "descripcion": "Descripción", "precio": "Precio" }, "max": 200 }
+      ]
+    },
+    {
+      "id": "evento",
+      "category": "marketing",
+      "label": "Evento",
+      "icon": "calendar",
+      "description": "Añade el evento al calendario de quien escanea.",
+      "builder": "event",
+      "escape": "none",
+      "fields": [
+        { "name": "title", "label": "Nombre del evento", "type": "text", "required": true, "maxlength": 100, "placeholder": "Lanzamiento de producto" },
+        { "name": "start", "label": "Inicio", "type": "datetime", "required": true },
+        { "name": "end", "label": "Fin", "type": "datetime" },
+        { "name": "location", "label": "Lugar", "type": "text", "maxlength": 160, "placeholder": "Salón Reforma, CDMX" },
+        { "name": "description", "label": "Descripción", "type": "textarea", "rows": 2, "maxlength": 400, "placeholder": "Detalles del evento" },
+        { "name": "url", "label": "Enlace", "type": "url", "maxlength": 500, "placeholder": "https://ejemplo.com/evento" }
+      ]
+    },
+    {
+      "id": "geo",
+      "category": "marketing",
+      "label": "Ubicación geográfica",
+      "icon": "map",
+      "description": "Abre la ubicación en el mapa del dispositivo.",
+      "escape": "none",
+      "template": "geo:{lat},{lng}",
+      "fields": [
+        { "name": "lat", "label": "Latitud", "type": "text", "required": true, "pattern": "^-?\\d{1,3}(\\.\\d+)?$", "placeholder": "19.4326" },
+        { "name": "lng", "label": "Longitud", "type": "text", "required": true, "pattern": "^-?\\d{1,3}(\\.\\d+)?$", "placeholder": "-99.1332" },
+        { "name": "etiqueta", "label": "Nombre del lugar", "type": "text", "maxlength": 80, "placeholder": "Oficina central" }
+      ]
+    }
+  ]
+}

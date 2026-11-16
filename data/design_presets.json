@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "presets": [
+    {
+      "id": "minimalista",
+      "name": "Minimalista",
+      "description": "Negro sobre blanco, módulos limpios y zona de silencio amplia.",
+      "tags": ["claro", "neutro"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 5,
+        "modules": { "shape": "square", "fill": { "type": "solid", "color": "#111111" } },
+        "eyeFrame": { "shape": "square", "fill": { "type": "solid", "color": "#111111" } },
+        "eyeBall": { "shape": "square", "fill": { "type": "solid", "color": "#111111" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "none", "text": "", "textColor": "#111111", "background": "#ffffff" }
+      }
+    },
+    {
+      "id": "moderno",
+      "name": "Moderno",
+      "description": "Módulos redondeados en azul con esquinas suaves.",
+      "tags": ["claro", "corporativo"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "rounded", "fill": { "type": "solid", "color": "#1d4ed8" } },
+        "eyeFrame": { "shape": "rounded", "fill": { "type": "solid", "color": "#1e293b" } },
+        "eyeBall": { "shape": "rounded", "fill": { "type": "solid", "color": "#1d4ed8" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "rounded", "text": "Escaneame", "textColor": "#1e293b", "background": "#f8fafc", "accent": "#1d4ed8" }
+      }
+    },
+    {
+      "id": "profesional",
+      "name": "Profesional",
+      "description": "Puntos finos en gris carbón con marcadores cuadrados.",
+      "tags": ["claro", "sobrio"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "dots", "fill": { "type": "solid", "color": "#0f172a" } },
+        "eyeFrame": { "shape": "square", "fill": { "type": "solid", "color": "#0f172a" } },
+        "eyeBall": { "shape": "square", "fill": { "type": "solid", "color": "#0f172a" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "border", "text": "", "background": "#ffffff", "accent": "#0f172a" }
+      }
+    },
+    {
+      "id": "empresarial",
+      "name": "Empresarial",
+      "description": "Degradado diagonal azul corporativo con esquinas extra redondeadas.",
+      "tags": ["degradado", "corporativo"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "classy", "fill": { "type": "linear", "color": "#1e3a8a", "gradient": { "from": "#1e3a8a", "to": "#0369a1", "rotation": 45 } } },
+        "eyeFrame": { "shape": "extra-rounded", "fill": { "type": "solid", "color": "#1e3a8a" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#0369a1" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "banner-bottom", "text": "Tu empresa aquí", "textColor": "#ffffff", "background": "#ffffff", "accent": "#1e3a8a" }
+      }
+    },
+    {
+      "id": "elegante",
+      "name": "Elegante",
+      "description": "Verde profundo con degradado radial y tipografía serif en el marco.",
+      "tags": ["elegante", "oscuro"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 5,
+        "modules": { "shape": "classy-rounded", "fill": { "type": "radial", "color": "#064e3b", "gradient": { "from": "#065f46", "to": "#022c22", "rotation": 0 } } },
+        "eyeFrame": { "shape": "extra-rounded", "fill": { "type": "solid", "color": "#022c22" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#065f46" } },
+        "background": { "color": "#f8f5ef", "transparent": false },
+        "frame": { "style": "card", "text": "Más información", "textColor": "#065f46", "background": "#f8f5ef", "accent": "#065f46", "font": "serif" }
+      }
+    },
+    {
+      "id": "tecnologico",
+      "name": "Tecnológico",
+      "description": "Modo oscuro con degradado violeta-cian y fondo transparente opcional.",
+      "tags": ["oscuro", "degradado"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "dots", "fill": { "type": "linear", "color": "#8b5cf6", "gradient": { "from": "#a855f7", "to": "#22d3ee", "rotation": 120 } } },
+        "eyeFrame": { "shape": "extra-rounded", "fill": { "type": "solid", "color": "#22d3ee" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#a855f7" } },
+        "background": { "color": "#0b1120", "transparent": false },
+        "frame": { "style": "banner-top", "text": "Conecta con nosotros", "textColor": "#0b1120", "background": "#0b1120", "accent": "#22d3ee", "font": "mono" }
+      }
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing",
+      "description": "Naranja vibrante con degradado y marco llamativo.",
+      "tags": ["vibrante", "degradado"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "extra-rounded", "fill": { "type": "linear", "color": "#c2410c", "gradient": { "from": "#c2410c", "to": "#9d174d", "rotation": 200 } } },
+        "eyeFrame": { "shape": "extra-rounded", "fill": { "type": "solid", "color": "#7c2d12" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#9d174d" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "banner-bottom", "text": "¡Aprovecha la oferta!", "textColor": "#ffffff", "background": "#ffffff", "accent": "#c2410c" }
+      }
+    },
+    {
+      "id": "redes",
+      "name": "Redes sociales",
+      "description": "Rosa y violeta con puntos redondeados, ideal para perfiles.",
+      "tags": ["vibrante", "social"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 4,
+        "modules": { "shape": "rounded", "fill": { "type": "linear", "color": "#be185d", "gradient": { "from": "#be185d", "to": "#7e22ce", "rotation": 135 } } },
+        "eyeFrame": { "shape": "rounded", "fill": { "type": "solid", "color": "#6b21a8" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#be185d" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "rounded", "text": "Sígueme", "textColor": "#4c1d95", "background": "#fdf4ff", "accent": "#be185d" }
+      }
+    },
+    {
+      "id": "blanco-negro",
+      "name": "Blanco y negro",
+      "description": "Máximo contraste para impresión y escaneo a distancia.",
+      "tags": ["claro", "impresión"],
+      "design": {
+        "errorCorrection": "H",
+        "quietZone": 4,
+        "modules": { "shape": "square", "fill": { "type": "solid", "color": "#000000" } },
+        "eyeFrame": { "shape": "square", "fill": { "type": "solid", "color": "#000000" } },
+        "eyeBall": { "shape": "square", "fill": { "type": "solid", "color": "#000000" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "none", "text": "", "textColor": "#000000", "background": "#ffffff" }
+      }
+    },
+    {
+      "id": "degradado",
+      "name": "Degradado radial",
+      "description": "Degradado radial cian-azul con marcadores redondeados.",
+      "tags": ["degradado", "moderno"],
+      "design": {
+        "errorCorrection": "Q",
+        "quietZone": 5,
+        "modules": { "shape": "classy-rounded", "fill": { "type": "radial", "color": "#0e7490", "gradient": { "from": "#0e7490", "to": "#1d4ed8", "rotation": 0 } } },
+        "eyeFrame": { "shape": "extra-rounded", "fill": { "type": "solid", "color": "#0e4f8a" } },
+        "eyeBall": { "shape": "dot", "fill": { "type": "solid", "color": "#1d4ed8" } },
+        "background": { "color": "#ffffff", "transparent": false },
+        "frame": { "style": "card", "text": "Escanea para ver más", "textColor": "#0e7490", "background": "#ecfeff", "accent": "#0e7490" }
+      }
+    }
+  ]
+}

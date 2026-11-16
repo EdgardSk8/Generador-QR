@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block heading %}Generación masiva{% endblock %}
+{% block subheading %}Importa un CSV, genera un QR por registro y descárgalos todos en un ZIP.{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>1 · Datos de entrada</h2></div>
+    <div class="card-body stack-sm">
+      <div class="field">
+        <label class="field-label" for="bulkType">Tipo de código QR</label>
+        <select class="select" id="bulkType"></select>
+        <p class="field-help" id="bulkFieldsHelp">—</p>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button">
+        <svg class="icon icon-lg"><use href="#i-upload"/></svg>
+        <p><strong>Arrastra tu archivo CSV</strong> o haz clic para elegirlo</p>
+        <p class="small">La primera fila debe contener los encabezados. Máximo 500 filas.</p>
+        <input type="file" id="csvInput" accept=".csv,text/csv,text/plain" class="hidden">
+      </div>
+
+      <div class="stack-sm hidden" id="csvSummary">
+        <div class="row-between">
+          <span class="badge badge-soft" id="csvName">—</span>
+          <span class="badge" id="csvRows">—</span>
+        </div>
+        <div class="field">
+          <label class="field-label" for="templateSelect">Plantilla de diseño</label>
+          <select class="select" id="templateSelect"></select>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" id="saveToggle" checked>
+          <span>Guardar los códigos en Mis códigos (recomendado para QR dinámicos)</span>
+        </label>
+        <div class="field">
+          <label class="field-label" for="bulkFormat">Formato del ZIP</label>
+          <select class="select" id="bulkFormat">
+            <option value="png">PNG (1024 px)</option>
+            <option value="svg">SVG (vectorial)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>2 · Vista previa y descarga</h2></div>
+    <div class="card-body stack-sm">
+      <div class="row">
+        <button class="btn btn-primary" id="generateBtn" type="button" disabled>
+          <svg class="icon icon-sm"><use href="#i-layers"/></svg> Generar y descargar ZIP
+        </button>
+        <button class="btn btn-ghost btn-sm" id="sampleBtn" type="button">Descargar CSV de ejemplo</button>
+      </div>
+      <div class="progress hidden" id="progressWrap"><div id="progressBar"></div></div>
+      <p class="small muted" id="progressLabel"></p>
+      <div id="bulkErrors" class="stack-sm"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Filas detectadas</h2>
+    <span class="spacer"></span>
+    <span class="badge" id="validCount">—</span>
+  </div>
+  <div class="card-body" style="overflow:auto" id="bulkTable">
+    <p class="muted small">Sube un CSV para ver la vista previa.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block vendors %}
+<script src="{{ url_for('static', filename='vendor/qr-code-styling.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/jszip.min.js') }}"></script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/pages/lote.js') }}"></script>
+{% endblock %}

@@ -1,22 +1,33 @@
-from flask import Flask, render_template, request
-import qrcode
-from io import BytesIO
-import base64
+"""Punto de entrada de la aplicacion en modo desarrollo.
 
-app = Flask(__name__)
+Ejecutar con el interprete del entorno virtual: python app.py
+Se usa use_reloader=False para tener un unico proceso (ver aplicacion.md 4.1).
+"""
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    qr_image = None
-    if request.method == "POST":
-        url = request.form["url"]
-        img = qrcode.make(url)
-        # Guardar la imagen QR en un buffer
-        img_byte_arr = BytesIO()
-        img.save(img_byte_arr)
-        img_byte_arr.seek(0)
-        qr_image = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
-    return render_template("index.html", qr_image=qr_image)
+from __future__ import annotations
+
+import os
+import socket
+
+from modules.core.factory import create_app
+
+app = create_app()
+
+
+def _available_port(preferred: int) -> int:
+    """Devuelve el primer puerto libre a partir del preferido."""
+    for candidate in range(preferred, preferred + 20):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+            if probe.connect_ex(("127.0.0.1", candidate)) != 0:
+                return candidate
+    return preferred
+
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", "5000"))
+    chosen = _available_port(port)
+    if chosen != port:
+        print(f"El puerto {port} esta ocupado; se usara el {chosen}.")
+    app.run(host="0.0.0.0", port=chosen,
+            debug=os.environ.get("FLASK_DEBUG", "1") == "1",
+            use_reloader=False)

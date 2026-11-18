@@ -52,6 +52,7 @@ const state = {
   logoMax: LOGO_SIZE_MAX,
   logoLimitFor: "",
   logoQr: "",
+  logoDark: false,
   editId: initial.code?.id || null,
   content: "",
   errors: {},
@@ -549,8 +550,7 @@ function renderDesignPanel() {
   if (state.mode === "sencillo") {
     renderSimplePanel();
     restoreOpenSections(openSections);
-    syncLogoMarginLimit();
-    syncLogoSizeLimit();
+    syncDesignControls();
     return;
   }
 
@@ -637,47 +637,66 @@ function renderDesignPanel() {
           <select class="select" data-path="frame.style" id="frameStyle">
             ${FRAME_STYLES.map((style) => `<option value="${style.value}" ${d.frame.style === style.value ? "selected" : ""}>${style.label}</option>`).join("")}
           </select>
+          <p class="field-help" id="frameHint">Elige un estilo para añadir el marco: borde, tarjeta o banda superior/inferior.</p>
         </div>
-        <div class="field">
-          <label class="field-label" for="frameText">Texto</label>
-          <input class="input" data-path="frame.text" id="frameText" maxlength="60" value="${escapeHtml(d.frame.text)}" placeholder="Escanéame, Ver menú, Más información…">
-        </div>
-        <div class="field-row">
+        <div class="stack-sm" data-frame-fields>
           <div class="field">
-            <label class="field-label">Color del texto</label>
-            <input class="input-color" type="color" data-path="frame.textColor" value="${d.frame.textColor}">
+            <label class="field-label" for="frameText">Texto</label>
+            <input class="input" data-path="frame.text" id="frameText" maxlength="60" value="${escapeHtml(d.frame.text)}" placeholder="Escanéame, Ver menú, Más información…">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Color del texto</label>
+              <input class="input-color" type="color" data-path="frame.textColor" value="${d.frame.textColor}">
+            </div>
+            <div class="field">
+              <label class="field-label">Color del marco</label>
+              <input class="input-color" type="color" data-path="frame.background" value="${d.frame.background}">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Color del borde</label>
+              <input class="input-color" type="color" data-path="frame.accent" value="${d.frame.accent}">
+            </div>
+            <div class="field">
+              <label class="field-label" for="frameFont">Tipografía</label>
+              <select class="select" data-path="frame.font" id="frameFont">
+                <option value="sans" ${d.frame.font === "sans" ? "selected" : ""}>Sans (moderna)</option>
+                <option value="serif" ${d.frame.font === "serif" ? "selected" : ""}>Serif (elegante)</option>
+                <option value="mono" ${d.frame.font === "mono" ? "selected" : ""}>Monoespaciada</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label">Grosor del borde</label>
+              <div class="range-row">
+                <input type="range" min="2" max="30" step="1" data-path="frame.width" data-scale="0.001" value="${Math.round(d.frame.width * 1000)}">
+                <span class="range-value"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Redondeo</label>
+              <div class="range-row">
+                <input type="range" min="0" max="20" step="1" data-path="frame.radius" data-scale="0.01" value="${Math.round(d.frame.radius * 100)}">
+                <span class="range-value"></span>
+              </div>
+            </div>
           </div>
           <div class="field">
-            <label class="field-label">Color del marco</label>
-            <input class="input-color" type="color" data-path="frame.background" value="${d.frame.background}">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label class="field-label">Color de acento</label>
-            <input class="input-color" type="color" data-path="frame.accent" value="${d.frame.accent}">
+            <label class="field-label">Tamaño del texto</label>
+            <div class="range-row">
+              <input type="range" min="3" max="12" step="0.5" data-path="frame.fontSize" data-scale="0.01" value="${Math.round(d.frame.fontSize * 100)}">
+              <span class="range-value"></span>
+            </div>
           </div>
           <div class="field">
-            <label class="field-label" for="frameFont">Tipografía</label>
-            <select class="select" data-path="frame.font" id="frameFont">
-              <option value="sans" ${d.frame.font === "sans" ? "selected" : ""}>Sans (moderna)</option>
-              <option value="serif" ${d.frame.font === "serif" ? "selected" : ""}>Serif (elegante)</option>
-              <option value="mono" ${d.frame.font === "mono" ? "selected" : ""}>Monoespaciada</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label class="field-label">Tamaño del texto</label>
-          <div class="range-row">
-            <input type="range" min="3" max="9" step="0.5" data-path="frame.fontSize" data-scale="0.01" value="${Math.round(d.frame.fontSize * 100)}">
-            <span class="range-value">${Math.round(d.frame.fontSize * 100)}%</span>
-          </div>
-        </div>
-        <div class="field">
-          <label class="field-label">Espaciado del marco</label>
-          <div class="range-row">
-            <input type="range" min="2" max="18" step="1" data-path="frame.padding" data-scale="0.01" value="${Math.round(d.frame.padding * 100)}">
-            <span class="range-value">${Math.round(d.frame.padding * 100)}%</span>
+            <label class="field-label">Espaciado del marco</label>
+            <div class="range-row">
+              <input type="range" min="2" max="18" step="1" data-path="frame.padding" data-scale="0.01" value="${Math.round(d.frame.padding * 100)}">
+              <span class="range-value"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -704,8 +723,60 @@ function renderDesignPanel() {
     </details>`;
 
   restoreOpenSections(openSections);
+  syncDesignControls();
+}
+
+/**
+ * Escribe en el panel lo que dice el diseño. Se llama tras cada cambio para que
+ * ningún control quede desfasado (valores, etiquetas, deshabilitados y avisos).
+ */
+function syncDesignControls() {
+  const panel = $("#designPanel");
+  if (!panel) return;
+  panel.querySelectorAll("[data-path]").forEach((input) => {
+    const path = input.dataset.path;
+    const value = getPath(state.design, path);
+    if (value === undefined) return;
+    if (input.type === "checkbox") {
+      input.checked = Boolean(value);
+      return;
+    }
+    const typing = input === document.activeElement
+      && (input.type === "text" || input.type === "color" || input.tagName === "SELECT");
+    if (typing) return;
+    if (input.type === "range") {
+      const scale = Number(input.dataset.scale) || 1;
+      input.value = String(Number(value) / scale);
+      updateRangeLabel(input);
+      return;
+    }
+    input.value = String(value);
+  });
+  $$("[data-shapes-for]").forEach((button) => {
+    const prefix = button.dataset.shapesFor;
+    button.classList.toggle("is-active", state.design[prefix]?.shape === button.dataset.shape);
+  });
+  syncFillEditors();
+  syncColorInputs();
+  syncQuietZone();
+  syncInspector();
   syncLogoMarginLimit();
   syncLogoSizeLimit();
+  syncLogoDarkHint();
+  syncFrameFields();
+}
+
+/** Los ajustes del marco solo actúan cuando hay un estilo elegido. */
+function syncFrameFields() {
+  const none = (state.design.frame.style || "none") === "none";
+  const fields = $("#designPanel [data-frame-fields]");
+  if (fields) {
+    fields.classList.toggle("is-disabled", none);
+    fields.querySelectorAll("input, select, button").forEach((node) => {
+      node.disabled = none;
+    });
+  }
+  $("#frameHint")?.classList.toggle("hidden", !none);
 }
 
 /** Mantiene abiertas (o cerradas) las secciones tal y como las tenía el usuario. */
@@ -730,6 +801,7 @@ function logoEditorInner() {
           </div>
         </div>
         ${state.logoQr ? `<p class="field-hint field-hint-warn">Esta imagen ya es un código QR (${escapeHtml(state.logoQr.slice(0, 60))}). Superpuesta se ve mal y, al escanear, puede leerse ese otro contenido: colócala arriba o debajo del QR.</p>` : ""}
+        <p class="field-hint field-hint-warn hidden" id="logoDarkHint">Logotipo oscuro sin fondo: sobre los módulos apenas se distingue. Activa «Fondo detrás del logotipo» o muévelo arriba o debajo del QR.</p>
         <div class="field">
           <div class="row-between">
             <label class="field-label" for="logoPosition">Posición</label>
@@ -794,7 +866,9 @@ function updateRangeLabel(input) {
   const label = input?.parentElement?.querySelector(".range-value");
   if (!label) return;
   if (input.dataset.scale) {
-    label.textContent = `${Math.round(Number(input.value) * Number(input.dataset.scale) * 100)}%`;
+    const percent = Number(input.value) * Number(input.dataset.scale) * 100;
+    const rounded = percent < 10 ? Math.round(percent * 10) / 10 : Math.round(percent);
+    label.textContent = `${rounded}%`;
   } else {
     label.textContent = input.value + (input.dataset.path?.includes("rotation") ? "°" : "");
   }
@@ -847,6 +921,14 @@ function syncLogoMarginLimit() {
   input.closest(".field")?.classList.toggle("is-disabled", input.disabled);
   if (Number(input.value) > limit) input.value = String(limit);
   updateRangeLabel(input);
+}
+
+/** Aviso (sin mover nada) cuando un logotipo oscuro quedaría encima de los módulos. */
+function syncLogoDarkHint() {
+  const node = $("#logoDarkHint");
+  if (!node) return;
+  node.classList.toggle("hidden", !(state.logoDark && state.design.logo.src
+    && !state.design.logo.clearBackground));
 }
 
 /**
@@ -1025,6 +1107,33 @@ function getPath(object, path) {
   return path.split(".").reduce((acc, key) => (acc == null ? acc : acc[key]), object);
 }
 
+/** Guarda el valor del control en el diseño y refresca todo el panel. */
+function applyControlChange(target) {
+  if (target.dataset.paletteCustom !== undefined) {
+    applyColor(target.value);
+    return;
+  }
+  const path = target.dataset.path;
+  if (!path) return;
+  if (target.dataset.colorText !== undefined && !HEX_RE.test(target.value)) return;
+
+  let value;
+  if (target.type === "checkbox") value = target.checked;
+  else if (target.type === "range") value = Number(target.value) * (Number(target.dataset.scale) || 1);
+  else value = target.value;
+
+  setPath(state.design, path, value);
+  if (path.startsWith("logo.")) {
+    state.fitFor = "";
+    clampLogo();
+  } else if (state.design.logo.src && state.design.errorCorrection !== "H") {
+    state.design.errorCorrection = "H";
+  }
+  if (/^(modules|eyeFrame|eyeBall)/.test(path)) syncFillEditors();
+  syncDesignControls();
+  schedulePreview();
+}
+
 function setPath(object, path, value) {
   const keys = path.split(".");
   const last = keys.pop();
@@ -1036,54 +1145,23 @@ function bindDesignEvents() {
   const panel = $("#designPanel");
 
   panel.addEventListener("input", (event) => {
-    const target = event.target;
-    if (target.id === "logoInput") return;
-    if (target.dataset.paletteCustom !== undefined) {
-      applyColor(target.value);
-      return;
-    }
-    const path = target.dataset.path;
-    if (!path) return;
-
-    if (target.dataset.colorText !== undefined) {
-      if (!HEX_RE.test(target.value)) return;
-    }
-
-    let value;
-    if (target.type === "checkbox") value = target.checked;
-    else if (target.type === "range") value = Number(target.value) * (Number(target.dataset.scale) || 1);
-    else value = target.value;
-
-    setPath(state.design, path, value);
-    if (target.type === "range") updateRangeLabel(target);
-    if (path.startsWith("logo.")) {
-      state.fitFor = "";
-      clampLogo();
-    } else if (state.design.logo.src && state.design.errorCorrection !== "H") {
-      state.design.errorCorrection = "H";
-      const levelSelect = $("#ecLevel");
-      if (levelSelect) levelSelect.value = "H";
-    }
-    if (path.startsWith("modules") || path.startsWith("eyeFrame") || path.startsWith("eyeBall")) {
-      syncFillEditors();
-    }
-    if (path === "background.transparent" || path === "background.color") {
-      $("[data-bg]")?.classList.toggle("hidden", state.design.background.transparent);
-      const exportToggle = $("#transparentToggle");
-      if (exportToggle) exportToggle.checked = state.design.background.transparent;
-    }
-    if (path === "quietZone") syncQuietZone();
-    schedulePreview();
+    if (event.target.id === "logoInput") return;
+    applyControlChange(event.target);
   });
 
   panel.addEventListener("change", (event) => {
     const target = event.target;
+    if (target.id === "logoInput") {
+      if (target.files?.[0]) applyLogo(target.files[0]);
+      return;
+    }
     if (target.dataset.colorText !== undefined && !HEX_RE.test(target.value)) {
       target.value = getPath(state.design, target.dataset.path);
+      return;
     }
-    if (target.id === "logoInput" && target.files?.[0]) {
-      applyLogo(target.files[0]);
-    }
+    // Algunos controles solo emiten «change»: se aplican aquí y se vuelve a
+    // sincronizar todo el panel para que nada quede desfasado.
+    applyControlChange(target);
   });
 
   panel.addEventListener("click", (event) => {
@@ -1122,6 +1200,7 @@ function bindDesignEvents() {
     if (event.target.closest("#removeLogo")) {
       state.design.logo.src = "";
       state.logoQr = "";
+      state.logoDark = false;
       state.logoLimitFor = "";
       renderDesignPanel();
       updatePreview();
@@ -1159,6 +1238,11 @@ function applyPreset(presetId) {
   if (!preset) return;
   state.presetId = presetId;
   state.design = normalizeDesign(preset.design);
+  // El logotipo del preset no trae los avisos medidos: se recalculan al subirlo.
+  state.logoQr = "";
+  state.logoDark = false;
+  state.logoLimitFor = "";
+  state.logoMax = LOGO_SIZE_MAX;
   renderDesignPanel();
   updatePreview();
   toast(`Plantilla «${preset.name}» aplicada`);
@@ -1203,18 +1287,15 @@ async function applyLogo(file) {
     state.design.logo.src = dataUrl;
     state.fitFor = "";
     state.logoQr = await detectLogoQr(dataUrl);
+    state.logoDark = await isDarkLogo(dataUrl);
     state.logoMax = LOGO_SIZE_MAX;
     state.logoLimitFor = "";
-    // Un logotipo oscuro sobre los módulos negros se ve como una mancha:
-    // en ese caso se coloca fuera del código por defecto.
-    const dark = await isDarkLogo(dataUrl);
-    state.design.logo.position = dark ? "bottom" : "center";
+    // La posición se deja como está (por defecto «Sobre el QR»): solo se avisa
+    // cuando un logotipo oscuro se vería como una mancha encima de los módulos.
     clampLogo();
     renderDesignPanel();
     updatePreview();
-    toast(dark
-      ? "Logotipo oscuro: se colocó debajo del código para que se vea nítido"
-      : "Logotipo añadido: proporción, tamaño y margen ajustados");
+    toast("Logotipo añadido: proporción, tamaño y margen ajustados");
   } catch (error) {
     toast("No se pudo procesar la imagen", "bad");
   }
@@ -1308,6 +1389,44 @@ function loadImageElement(src) {
   });
 }
 
+/**
+ * Recorta el borde transparente de una imagen con alfa. Los logotipos «sin fondo»
+ * suelen venir en un lienzo mucho mayor que el dibujo, y sin recortar se ven
+ * diminutos y descentrados dentro del hueco del QR.
+ */
+function trimTransparentEdges(canvas) {
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const { width, height } = canvas;
+  const { data } = ctx.getImageData(0, 0, width, height);
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+  let transparent = 0;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (data[(y * width + x) * 4 + 3] < 16) {
+        transparent += 1;
+        continue;
+      }
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+  if (!transparent || maxX < 0) return canvas;
+  const trimW = maxX - minX + 1;
+  const trimH = maxY - minY + 1;
+  if (trimW < 2 || trimH < 2) return canvas;
+  if (trimW > width * 0.98 && trimH > height * 0.98) return canvas;
+  const trimmed = document.createElement("canvas");
+  trimmed.width = trimW;
+  trimmed.height = trimH;
+  trimmed.getContext("2d").drawImage(canvas, minX, minY, trimW, trimH, 0, 0, trimW, trimH);
+  return trimmed;
+}
+
 async function optimizeImage(file, maxSide = 512) {
   const original = await readFileAsDataUrl(file);
   const image = await loadImageElement(original);
@@ -1322,19 +1441,20 @@ async function optimizeImage(file, maxSide = 512) {
 
   // PNG/WebP conservan transparencia; JPG se reencode como JPEG (más ligero).
   const keepAlpha = file.type !== "image/jpeg";
+  const source = keepAlpha ? trimTransparentEdges(canvas) : canvas;
   let output = keepAlpha
-    ? canvas.toDataURL("image/png")
-    : canvas.toDataURL("image/jpeg", 0.92);
+    ? source.toDataURL("image/png")
+    : source.toDataURL("image/jpeg", 0.92);
 
   // Si el resultado es muy pesado, se aplana sobre blanco y se comprime.
   if (output.length > 700000) {
     const flat = document.createElement("canvas");
-    flat.width = canvas.width;
-    flat.height = canvas.height;
+    flat.width = source.width;
+    flat.height = source.height;
     const flatCtx = flat.getContext("2d");
     flatCtx.fillStyle = "#ffffff";
     flatCtx.fillRect(0, 0, flat.width, flat.height);
-    flatCtx.drawImage(canvas, 0, 0);
+    flatCtx.drawImage(source, 0, 0);
     output = flat.toDataURL("image/jpeg", 0.82);
   }
   return output;

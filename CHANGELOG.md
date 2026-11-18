@@ -1,5 +1,13 @@
 # Historial de versiones
 
+## [2.0.2] - 2026-11-17T20:57:00-07:00
+- **Marco editable**: nuevos controles de **grosor del borde** (`frame.width`, 0,2–3 %) y **redondeo** de esquinas (`frame.radius`, 0–20 %), junto a estilo, colores del marco/borde/texto, tipografía, tamaño del texto y espaciado. Los ajustes del marco se habilitan al elegir un estilo y se deshabilitan con «Sin marco», con un aviso que lo explica; el grosor se aplica en la vista previa y en las exportaciones PNG/JPG/WebP/SVG/PDF.
+- **Panel siempre sincronizado**: cada cambio reescribe todos los controles desde el diseño (valores, etiquetas, deshabilitados y avisos). Se corrigieron los campos de color que no actualizaban su pareja HEX, la barra superior de margen/fondo transparente tras aplicar una plantilla, y los desfases al recortar tamaño/margen del logotipo. Los controles que solo emiten `change` también se aplican.
+- **QR excavado alrededor del logotipo**: el código se regenera dejando sin dibujar los módulos que ocupa el logo (más su margen), de modo que ningún módulo queda cortado ni tapado por una caja blanca. El hueco sigue la proporción de la imagen, se ajusta a la rejilla y se recalcula al cambiar el tamaño, el margen, el contenido o el nivel de corrección; aplica a la vista previa, las miniaturas y las exportaciones PNG/JPG/WebP/SVG/PDF.
+- El render del servidor recorta igual el hueco del logotipo a módulos completos, así las descargas guardadas se ven como la vista previa.
+- La posición del logotipo vuelve a ser «Sobre el QR» al subir una imagen: se eliminó el cambio automático a la banda inferior, que movía el logo sin pedirlo y dejaba el QR más pequeño. Ahora solo se avisa en el panel cuando un logotipo oscuro se vería como una mancha (sin fondo detrás y sobre los módulos).
+- Las imágenes **sin fondo** se recortan a su contenido al subirlas: un logo exportado dentro de un lienzo grande ya no se dibuja diminuto y descentrado, ocupa el hueco completo que marca el control de tamaño. Los avisos de logotipo oscuro y de logotipo-QR se calculan sobre la imagen ya recortada.
+
 ## [2.0.1] - 2026-11-16T12:20:00-07:00
 - **Logotipo fuera del QR**: nuevo selector de *Posición* (Sobre el QR / Arriba / Debajo) que coloca la imagen en una banda propia para que no tape ningún módulo. La zona del QR queda idéntica píxel a píxel, comprobado con la decodificación real.
 - Detección automática de logotipos oscuros (mediana de luminancia del contenido): se colocan debajo del código al subirlos, porque sobre los módulos negros se veían como una mancha.

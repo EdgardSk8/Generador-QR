@@ -34,13 +34,20 @@ Las páginas alojadas (múltiples enlaces, tarjeta, negocio, menú y galería) s
 - Formas de módulos: cuadrado, redondeado, extra redondeado, puntos, clásico y clásico suave.
 - **Esquinas independientes**: forma y color del marco exterior y del centro.
 - **Logotipo**: PNG/JPG/WebP, tamaño, margen, fondo y ajuste automático de legibilidad.
-- **Posición del logotipo**: sobre el QR (centro, con hueco de seguridad) o en una banda
-  arriba/abajo, para que no tape módulos. Un logotipo oscuro se coloca fuera del código
-  automáticamente al subirlo.
+  El QR se regenera dejando libres los módulos que ocupa el logo, así el hueco sigue su
+  proporción y nunca corta ni tapa módulos. Las imágenes con transparencia se recortan a su
+  contenido, así el logo ocupa el hueco disponible en vez de quedar diminuto dentro de un
+  lienzo vacío.
+- **Posición del logotipo**: sobre el QR (valor por defecto, con hueco de seguridad) o en
+  una banda arriba/abajo, para que no tape módulos. Si el logo es oscuro y no tiene fondo
+  detrás, se avisa en el panel (sin mover la posición elegida).
 - **Tamaño máximo verificado**: el deslizador se limita al tamaño más grande que un lector
   real sigue decodificando; si necesitas un logotipo mayor, se coloca fuera del QR. Nunca
   se recorta el tamaño sin avisar.
-- **Marcos**: borde, redondeado, tarjeta, banda superior o inferior, con texto y tipografía.
+- **Marcos**: borde, redondeado, tarjeta, banda superior o inferior, con texto y tipografía,
+  y control de **grosor del borde**, **redondeo**, color del marco, color del borde y color del
+  texto. Los ajustes del marco se activan al elegir un estilo (con «Sin marco» quedan
+  deshabilitados).
 - Fondo transparente, zona de silencio configurable y nivel de corrección de errores.
 
 ### Legibilidad garantizada

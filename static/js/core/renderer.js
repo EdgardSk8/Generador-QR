@@ -9,6 +9,110 @@ const FONT_STACKS = {
   mono: 'ui-monospace, "Cascadia Code", Consolas, monospace',
 };
 
+// Capacidad de corrección por nivel: la librería la usa para decidir cuántos
+// módulos puede ocultar el logotipo sin romper la lectura.
+const HIDE_CAPACITY = { L: 0.07, M: 0.15, Q: 0.25, H: 0.3 };
+// Los módulos de la rejilla solo dependen del contenido y del nivel de corrección.
+const MODULE_CACHE = new Map();
+
+/** El logotipo central se incrusta en el QR, que se genera sin los módulos que ocupa. */
+function logoEmbedded(design) {
+  return Boolean(design.logo && design.logo.src)
+    && (design.logo.position || "center") === "center";
+}
+
+/** Módulos por lado de la rejilla del QR. */
+async function moduleCount(content, level) {
+  const key = `${level}|${content}`;
+  if (MODULE_CACHE.has(key)) return MODULE_CACHE.get(key);
+  let count = 0;
+  try {
+    const probe = new QRCodeStyling({
+      width: 40,
+      height: 40,
+      type: "canvas",
+      data: content,
+      margin: 0,
+      qrOptions: { typeNumber: 0, mode: "Byte", errorCorrectionLevel: level },
+    });
+    await probe.getRawData("png");
+    count = probe._qr?.getModuleCount?.() || 0;
+  } catch (_error) {
+    count = 0;
+  }
+  if (count) {
+    if (MODULE_CACHE.size > 40) MODULE_CACHE.delete(MODULE_CACHE.keys().next().value);
+    MODULE_CACHE.set(key, count);
+  }
+  return count;
+}
+
+/** Cálculo interno de la librería: módulos que oculta su hueco para un `imageSize`. */
+function hiddenDots(modules, aspect, imageSize, capacity) {
+  const area = Math.floor(imageSize * capacity * modules * modules);
+  const maxAxis = modules - 14;
+  const factor = 1 / aspect;
+  let columns = Math.floor(Math.sqrt(area / factor)) || 1;
+  if (maxAxis > 0 && columns > maxAxis) columns = maxAxis;
+  if (columns % 2 === 0) columns -= 1;
+  let rows = 1 + 2 * Math.ceil((columns * factor - 1) / 2);
+  if (rows * columns > area || (maxAxis > 0 && rows > maxAxis)) {
+    if (maxAxis > 0 && rows > maxAxis) {
+      rows = maxAxis;
+      if (rows % 2 === 0) columns -= 1;
+    } else {
+      rows -= 2;
+    }
+    columns = 1 + 2 * Math.ceil((rows / factor - 1) / 2);
+  }
+  return { columns: Math.max(1, columns), rows: Math.max(1, rows) };
+}
+
+/** `imageSize` cuyo hueco se acerca más al ancho pedido (la rejilla manda el resto). */
+function bestImageSize(modules, aspect, capacity, dotSize, targetWidth, marginPx) {
+  let best = { imageSize: 0.02, width: 0, height: 0, error: Infinity };
+  const steps = 80;
+  for (let step = 1; step <= steps; step += 1) {
+    const imageSize = (step / steps) * 0.6;
+    const dots = hiddenDots(modules, aspect, imageSize, capacity);
+    const width = dots.columns * dotSize;
+    const height = width / aspect;
+    if (height <= marginPx * 2 + 2) continue;
+    const error = Math.abs(width - targetWidth);
+    if (error < best.error) best = { imageSize, width, height, error };
+  }
+  return best;
+}
+
+/**
+ * Hueco del logotipo: el QR se redibuja sin los módulos que ocupa el logo (más
+ * su margen), así que el hueco siempre cae en la rejilla y no corta módulos.
+ */
+async function logoLayout(content, design, size, logo) {
+  if (!logo || !logoEmbedded(design)) return null;
+  const aspect = (logo.width / logo.height) || 1;
+  const capacity = HIDE_CAPACITY[design.errorCorrection] || 0.25;
+  const dotArea = Math.max(1, size - 2 * quietMargin(design, size));
+  const marginPx = Math.max(0, Math.round((size * design.logo.margin) / 512));
+  const hole = design.logo.size + (2 * design.logo.margin) / 512;
+  const modules = await moduleCount(content, design.errorCorrection);
+
+  if (!modules) {
+    // Sin rejilla conocida se usa la aproximación analítica de la librería.
+    const imageSize = Math.min(0.95, Math.max(0.01, (hole * hole) / (capacity * aspect)));
+    return { imageSize, margin: Math.min(marginPx, Math.round(size * 0.02)) };
+  }
+
+  // La librería redondea el módulo a un número entero de píxeles.
+  const dotSize = Math.max(1, Math.floor(dotArea / modules));
+  const best = bestImageSize(modules, aspect, capacity, dotSize, hole * size, marginPx);
+  const margin = Math.min(
+    marginPx,
+    Math.max(0, Math.floor(Math.min(best.width, best.height) / 2) - 1),
+  );
+  return { imageSize: best.imageSize, margin };
+}
+
 export function quietMargin(design, size) {
   return Math.round((size * Math.max(0, design.quietZone)) / 33);
 }
@@ -25,7 +129,8 @@ function gradientOf(fillValue) {
   };
 }
 
-export function buildOptions(content, design, size, marginOverride = null) {
+export function buildOptions(content, design, size, marginOverride = null, logo = null,
+  layout = null) {
   const options = {
     width: size,
     height: size,
@@ -57,6 +162,19 @@ export function buildOptions(content, design, size, marginOverride = null) {
       gradient: gradientOf(design.eyeBall.fill),
     },
   };
+
+  // Logotipo central: se incrusta en el QR, que se redibuja dejando libres los
+  // módulos que ocupa (nada de una imagen encima de otra).
+  if (logo && logoEmbedded(design) && layout) {
+    options.image = design.logo.src;
+    options.imageOptions = {
+      saveAsBlob: true,
+      hideBackgroundDots: Boolean(design.logo.clearBackground),
+      imageSize: layout.imageSize,
+      margin: layout.margin,
+      crossOrigin: "anonymous",
+    };
+  }
   return options;
 }
 
@@ -70,45 +188,6 @@ async function loadLogo(design) {
     image.onerror = () => resolve(null);
     image.src = src;
   });
-}
-
-/**
- * Dibuja el logotipo centrado respetando su proporción.
- * `margin` amplía el hueco libre (misma escala que el servidor: px a 512 de referencia).
- */
-function fitLogoBox(image, box) {
-  const ratio = image.width / image.height || 1;
-  return ratio >= 1
-    ? { width: box, height: box / ratio }
-    : { width: box * ratio, height: box };
-}
-
-function drawLogo(ctx, design, size, logo, transparent) {
-  if (!logo) return;
-  const box = Math.max(8, Math.round(size * design.logo.size));
-  const target = fitLogoBox(logo, box);
-  const pad = Math.max(0, Math.round((size * design.logo.margin) / 512));
-  const clearW = Math.round(target.width) + pad * 2;
-  const clearH = Math.round(target.height) + pad * 2;
-  const center = size / 2;
-
-  // Hueco ajustado a la forma real del logo: rectángulo recto, sin esquinas redondeadas.
-  if (design.logo.clearBackground) {
-    ctx.save();
-    if (transparent || design.background.transparent) {
-      ctx.globalCompositeOperation = "destination-out";
-    } else {
-      ctx.fillStyle = design.background.color || "#ffffff";
-    }
-    ctx.fillRect(center - clearW / 2, center - clearH / 2, clearW, clearH);
-    ctx.restore();
-  }
-
-  ctx.save();
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(logo, center - target.width / 2, center - target.height / 2,
-    target.width, target.height);
-  ctx.restore();
 }
 
 /**
@@ -133,12 +212,15 @@ function drawLogoInBand(ctx, design, size, logo, metrics) {
   ctx.restore();
 }
 
-export function createQrInstance(content, design, size, marginOverride = null) {
-  return new QRCodeStyling(buildOptions(content, design, size, marginOverride));
+export function createQrInstance(content, design, size, marginOverride = null, logo = null,
+  layout = null) {
+  return new QRCodeStyling(buildOptions(content, design, size, marginOverride, logo, layout));
 }
 
 async function qrBitmap(content, design, size, marginOverride = null) {
-  const instance = createQrInstance(content, design, size, marginOverride);
+  const logo = await loadLogo(design);
+  const layout = await logoLayout(content, design, size, logo);
+  const instance = createQrInstance(content, design, size, marginOverride, logo, layout);
   const blob = await instance.getRawData("png");
   if (!blob) throw new Error("No se pudo generar la imagen del QR");
   return createImageBitmap(blob);
@@ -204,7 +286,7 @@ export function composeCanvas(source, design, size, { transparent = false, logo 
       ctx.fill();
     }
     if (metrics.style === "rounded" || metrics.style === "card") {
-      ctx.lineWidth = Math.max(2, size * 0.007);
+      ctx.lineWidth = Math.max(1, size * (design.frame.width || 0.006));
       ctx.strokeStyle = design.frame.accent;
       roundRect(ctx, ctx.lineWidth / 2, ctx.lineWidth / 2,
         metrics.width - ctx.lineWidth, metrics.height - ctx.lineWidth,
@@ -212,11 +294,11 @@ export function composeCanvas(source, design, size, { transparent = false, logo 
       ctx.stroke();
     }
     if (metrics.style === "border") {
-      const line = Math.max(2, size * 0.006);
+      const line = Math.max(1, size * (design.frame.width || 0.006));
       ctx.lineWidth = line;
       ctx.strokeStyle = design.frame.accent;
       roundRect(ctx, line / 2 + 1, line / 2 + 1, metrics.width - line - 2,
-        metrics.height - line - 2, Math.max(4, metrics.width * 0.03));
+        metrics.height - line - 2, Math.max(4, metrics.width * design.frame.radius));
       ctx.stroke();
     }
   }
@@ -231,15 +313,10 @@ export function composeCanvas(source, design, size, { transparent = false, logo 
 
   ctx.drawImage(source, metrics.qrX, metrics.qrY, size, size);
 
-  if (logo) {
-    if (metrics.bandMode) {
-      drawLogoInBand(ctx, design, size, logo, metrics);
-    } else {
-      ctx.save();
-      ctx.translate(metrics.qrX, metrics.qrY);
-      drawLogo(ctx, design, size, logo, transparentOutput);
-      ctx.restore();
-    }
+  // El logotipo central ya viaja dentro del QR (los módulos de debajo no se
+  // dibujan); aquí solo se añade cuando va en la banda superior o inferior.
+  if (logo && metrics.bandMode) {
+    drawLogoInBand(ctx, design, size, logo, metrics);
   }
 
   if (metrics.hasText && metrics.band > 0) {
@@ -268,7 +345,9 @@ function canvasToBlob(canvas, format) {
 }
 
 async function svgFromQr(content, design, size, marginOverride) {
-  const instance = createQrInstance(content, design, size, marginOverride);
+  const logo = await loadLogo(design);
+  const layout = await logoLayout(content, design, size, logo);
+  const instance = createQrInstance(content, design, size, marginOverride, logo, layout);
   const blob = await instance.getRawData("svg");
   return blob.text();
 }
@@ -277,28 +356,6 @@ function escapeXml(value) {
   return String(value).replace(/[<>&"']/g, (char) => ({
     "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;",
   }[char]));
-}
-
-function svgLogoMarkup(design, size, transparent, logo = null) {
-  if (!design.logo.src || !logo) return "";
-  const box = size * design.logo.size;
-  const target = fitLogoBox(logo, box);
-  const pad = Math.max(0, (size * design.logo.margin) / 512);
-  const clearW = target.width + pad * 2;
-  const clearH = target.height + pad * 2;
-  const center = size / 2;
-  const parts = [];
-
-  if (design.logo.clearBackground && !transparent && !design.background.transparent) {
-    parts.push(`<rect x="${(center - clearW / 2).toFixed(2)}" y="${(center - clearH / 2).toFixed(2)}" ` +
-      `width="${clearW.toFixed(2)}" height="${clearH.toFixed(2)}" ` +
-      `fill="${design.background.color}"/>`);
-  }
-
-  parts.push(`<image x="${(center - target.width / 2).toFixed(2)}" y="${(center - target.height / 2).toFixed(2)}" ` +
-    `width="${target.width.toFixed(2)}" height="${target.height.toFixed(2)}" ` +
-    `preserveAspectRatio="xMidYMid meet" href="${escapeXml(design.logo.src)}"/>`);
-  return parts.join("");
 }
 
 function svgBandLogo(design, metrics, logo) {
@@ -333,12 +390,12 @@ async function renderSvg(content, design, size, { transparent = false } = {}) {
       parts.push(`<rect width="${metrics.width}" height="${metrics.height}" rx="${metrics.width * design.frame.radius}" fill="${design.frame.background}"/>`);
     }
     if (metrics.style === "rounded" || metrics.style === "card") {
-      const line = Math.max(2, size * 0.007);
+      const line = Math.max(1, size * (design.frame.width || 0.006));
       parts.push(`<rect x="${line / 2}" y="${line / 2}" width="${metrics.width - line}" height="${metrics.height - line}" rx="${metrics.width * design.frame.radius}" fill="none" stroke="${design.frame.accent}" stroke-width="${line}"/>`);
     }
     if (metrics.style === "border") {
-      const line = Math.max(2, size * 0.006);
-      parts.push(`<rect x="${line / 2 + 1}" y="${line / 2 + 1}" width="${metrics.width - line - 2}" height="${metrics.height - line - 2}" rx="${Math.max(4, metrics.width * 0.03)}" fill="none" stroke="${design.frame.accent}" stroke-width="${line}"/>`);
+      const line = Math.max(1, size * (design.frame.width || 0.006));
+      parts.push(`<rect x="${line / 2 + 1}" y="${line / 2 + 1}" width="${metrics.width - line - 2}" height="${metrics.height - line - 2}" rx="${Math.max(4, metrics.width * design.frame.radius)}" fill="none" stroke="${design.frame.accent}" stroke-width="${line}"/>`);
     }
   }
 
@@ -347,11 +404,10 @@ async function renderSvg(content, design, size, { transparent = false } = {}) {
   }
 
   const nested = inner.replace(/<\?xml[^>]*\?>/, "").replace(/<svg\b/, `<svg x="${metrics.qrX}" y="${metrics.qrY}"`);
-  const logoImage = design.logo.src ? await loadLogo(design) : null;
-  const overlayLogo = metrics.bandMode ? "" : svgLogoMarkup(design, size, transparentOutput, logoImage);
-  parts.push(nested.replace(/<\/svg>\s*$/, `${overlayLogo}</svg>`));
+  parts.push(nested);
 
   if (metrics.bandMode) {
+    const logoImage = await loadLogo(design);
     if (metrics.style === "none" && !transparentOutput) {
       parts.push(`<rect x="0" y="${metrics.logoBandY}" width="${metrics.width}" ` +
         `height="${metrics.logoBand}" fill="${design.background.color}"/>`);
@@ -435,9 +491,7 @@ export async function drawThumbnail(canvas, content, design, size = 300) {
   canvas.getContext("2d").drawImage(composed, 0, 0);
 }
 
-export async function decodeCheck(content, design) {
-  if (typeof jsQR !== "function") return { ok: false, decoded: "" };
-  const size = 512;
+async function decodeAtSize(content, design, size) {
   try {
     const bitmap = await qrBitmap(content, design, size);
     const logo = await loadLogo(design);
@@ -464,6 +518,19 @@ export async function decodeCheck(content, design) {
   } catch (error) {
     return { ok: false, decoded: "", error };
   }
+}
+
+export async function decodeCheck(content, design) {
+  if (typeof jsQR !== "function") return { ok: false, decoded: "" };
+  // El lector real trabaja con la cámara a otra resolución: si un tamaño no
+  // decodifica (módulos pequeños en estilos con puntos o nivel H), se prueban
+  // otros antes de darlo por ilegible.
+  let last = { ok: false, decoded: "" };
+  for (const size of [640, 512, 1280]) {
+    last = await decodeAtSize(content, design, size);
+    if (last.ok) return last;
+  }
+  return last;
 }
 
 export function zipSafeName(name, index, extension = "png") {

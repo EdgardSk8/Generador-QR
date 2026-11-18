@@ -54,6 +54,7 @@ DEFAULT_DESIGN = {
         "fontSize": 0.055,
         "padding": 0.06,
         "radius": 0.05,
+        "width": 0.006,
     },
 }
 
@@ -146,6 +147,7 @@ def normalize_design(raw: dict | None) -> dict:
         "fontSize": round(_ratio(frame.get("fontSize"), 0.055, 0.03, 0.12), 3),
         "padding": round(_ratio(frame.get("padding"), 0.06, 0.02, 0.18), 3),
         "radius": round(_ratio(frame.get("radius"), 0.05, 0, 0.2), 3),
+        "width": round(_ratio(frame.get("width"), 0.006, 0.001, 0.03), 4),
     }
     return design
 

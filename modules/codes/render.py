@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import base64
 import io
+import math
 import re
 from xml.sax.saxutils import escape as xml_escape
 
@@ -109,7 +110,8 @@ def render_raster(code: dict, size: int = 1024, fmt: str = "PNG",
         canvas.alpha_composite(image, (0, band if position == "top" else 0))
         image = _draw_logo_band(canvas, design, size, band, position)
     else:
-        image = _apply_logo(image, design)
+        units = qr.symbol_size(scale=1, border=border)[0]
+        image = _apply_logo(image, design, size / units, size * border / units)
 
     output = io.BytesIO()
     if fmt in {"jpg", "jpeg"}:
@@ -174,7 +176,7 @@ def render_svg(code: dict, transparent: bool = False, margin: int | None = None)
     if band:
         parts.append(_svg_band_logo(design, units_w, units_h, band, position))
     else:
-        parts.append(_svg_center_logo(design, units_w, units_h))
+        parts.append(_svg_center_logo(design, units_w, units_h, border))
     parts.append("</svg>")
     return "".join(parts).encode("utf-8")
 
@@ -214,7 +216,8 @@ def _logo_aspect(src: str) -> float:
         return 1.0
 
 
-def _svg_center_logo(design: dict, width: int, height: int) -> str:
+def _svg_center_logo(design: dict, width: int, height: int,
+                     border: int = 0) -> str:
     src = design["logo"].get("src") or ""
     if not src.startswith("data:image/"):
         return ""
@@ -233,9 +236,13 @@ def _svg_center_logo(design: dict, width: int, height: int) -> str:
 
     background = _background(design, False)
     if design["logo"]["clearBackground"] and background:
+        left, top, right, bottom = _snap_box(
+            center_x - clear_w / 2, center_y - clear_h / 2,
+            center_x + clear_w / 2, center_y + clear_h / 2,
+            1.0, border, width - border)
         snippet += (
-            f'<rect x="{center_x - clear_w / 2:.3f}" y="{center_y - clear_h / 2:.3f}" '
-            f'width="{clear_w:.3f}" height="{clear_h:.3f}" fill="{background}"/>'
+            f'<rect x="{left:.3f}" y="{top:.3f}" '
+            f'width="{right - left:.3f}" height="{bottom - top:.3f}" fill="{background}"/>'
         )
 
     left = center_x - target_w / 2
@@ -247,7 +254,18 @@ def _svg_center_logo(design: dict, width: int, height: int) -> str:
     return snippet
 
 
-def _apply_logo(image: Image.Image, design: dict) -> Image.Image:
+def _snap_box(left: float, top: float, right: float, bottom: float,
+              unit: float, low: float, high: float) -> tuple[float, float, float, float]:
+    """Amplía el hueco a módulos completos: ningún módulo queda cortado."""
+    left = max(low, math.floor(left / unit) * unit)
+    top = max(low, math.floor(top / unit) * unit)
+    right = min(high, math.ceil(right / unit) * unit)
+    bottom = min(high, math.ceil(bottom / unit) * unit)
+    return left, top, right, bottom
+
+
+def _apply_logo(image: Image.Image, design: dict,
+                module_px: float = 0, quiet_px: float = 0) -> Image.Image:
     src = design["logo"].get("src") or ""
     match = re.match(r"^data:image/[a-zA-Z+]+;base64,(.+)$", src)
     if not match:
@@ -268,7 +286,12 @@ def _apply_logo(image: Image.Image, design: dict) -> Image.Image:
     if design["logo"]["clearBackground"]:
         left = center_x - clear_w // 2
         top = center_y - clear_h // 2
-        box_rect = (left, top, left + clear_w, top + clear_h)
+        right, bottom = left + clear_w, top + clear_h
+        if module_px:
+            left, top, right, bottom = _snap_box(
+                left, top, right, bottom, module_px,
+                quiet_px, image.width - quiet_px)
+        box_rect = (round(left), round(top), round(right), round(bottom))
         background = _background(design, False)
         if background:
             layer = Image.new("RGBA", image.size, (0, 0, 0, 0))

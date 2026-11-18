@@ -64,6 +64,7 @@ export const DEFAULT_DESIGN = {
     fontSize: 0.055,
     padding: 0.06,
     radius: 0.05,
+    width: 0.006,
   },
 };
 
@@ -161,6 +162,7 @@ export function normalizeDesign(raw) {
     fontSize: Number(ratio(frame.fontSize, 0.055, 0.03, 0.12).toFixed(3)),
     padding: Number(ratio(frame.padding, 0.06, 0.02, 0.18).toFixed(3)),
     radius: Number(ratio(frame.radius, 0.05, 0, 0.2).toFixed(3)),
+    width: Number(ratio(frame.width, 0.006, 0.001, 0.03).toFixed(4)),
   };
   return design;
 }
